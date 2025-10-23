@@ -12,20 +12,6 @@ interface Message {
 
 
 
-function IcClose() {
-  return (
-    <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 24 24">
-      <g id="ic-close">
-        <g id="icon">
-          <path clipRule="evenodd" d={svgPaths.pc3e4b00} fill="var(--fill-0, #111111)" fillRule="evenodd" />
-          <path clipRule="evenodd" d={svgPaths.pc3e4b00} fill="var(--fill-1, black)" fillOpacity="0.2" fillRule="evenodd" />
-          <path clipRule="evenodd" d={svgPaths.pc3e4b00} fill="var(--fill-2, black)" fillOpacity="0.2" fillRule="evenodd" />
-          <path clipRule="evenodd" d={svgPaths.pc3e4b00} fill="var(--fill-3, black)" fillOpacity="0.2" fillRule="evenodd" />
-        </g>
-      </g>
-    </svg>
-  );
-}
 
 
 
@@ -397,13 +383,6 @@ function IcArrowNarrowUp() {
   );
 }
 
-function IcArrowNarrowUp1() {
-  return (
-    <div className="absolute inset-0" data-name="ic-arrow-narrow-up">
-      <IcArrowNarrowUp />
-    </div>
-  );
-}
 
 
 
