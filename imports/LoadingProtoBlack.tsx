@@ -1,10 +1,8 @@
-import imgIcon from "figma:asset/e45b9cbc48dd1633cb54227432ae77a2cbffe444.png";
-
 function IcLoading() {
   return (
     <div className="relative size-full" data-name="ic-loading">
       <div className="absolute inset-[16.667%]" data-name="icon">
-        <img alt="" className="block max-w-none size-full" height="16" src={imgIcon} width="16" />
+        <div className="block max-w-none size-full bg-gray-300 rounded-full animate-pulse" />
       </div>
       <div className="absolute inset-[73.33%_44.67%_16.67%_45.33%]" data-name="icon">
         <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 3 3">

@@ -61,14 +61,6 @@ function IcSize1() {
   );
 }
 
-function Frame377022() {
-  return (
-    <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
-      <IcSize />
-      <IcSize1 />
-    </div>
-  );
-}
 
 function IcShare() {
   return (
@@ -334,24 +326,6 @@ function InitialView({ onFaqClick }: { onFaqClick: (question: string) => void })
   );
 }
 
-function IcSendFilled({ hasText }: { hasText: boolean }) {
-  const iconColor = hasText ? '#00AB7F' : '#9E9E9E';
-  
-  return (
-    <div className="relative shrink-0 size-[20px] transition-transform hover:scale-110 cursor-pointer" data-name="ic-send-filled">
-      <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 20 20">
-        <g id="ic-send-filled">
-          <path 
-            d="M10.6789 10.1644L4.40287 11.2104C4.25587 11.2349 4.13315 11.3361 4.08103 11.4757L1.91611 17.2735C1.70888 17.8064 2.26674 18.3147 2.77812 18.059L17.7781 10.559C18.2388 10.3287 18.2388 9.67134 17.7781 9.44101L2.77812 1.94101C2.26674 1.68532 1.70888 2.19368 1.91611 2.72656L4.08103 8.52438C4.13315 8.66399 4.25587 8.76512 4.40287 8.78962L10.6789 9.83563C10.7697 9.85076 10.831 9.93663 10.8159 10.0274C10.8042 10.0977 10.7491 10.1527 10.6789 10.1644Z"
-            fill={iconColor} 
-            id="icon" 
-            className="transition-colors"
-          />
-        </g>
-      </svg>
-    </div>
-  );
-}
 
 function IcArrowNarrowUpButton() {
   return (
@@ -479,37 +453,6 @@ function IcSize3() {
   );
 }
 
-function Component() {
-  return (
-    <div className="relative shrink-0 size-[40px]" data-name="도움말">
-      <div className="absolute left-0 size-[40px] top-0">
-        <div className="absolute bottom-[-25%] left-[-12.5%] right-[-12.5%] top-0 hover:[&_circle:first-child]:fill-[#6E6E6E] transition-colors cursor-pointer">
-          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 50 50">
-            <g filter="url(#filter0_d_3_860)" id="Ellipse 233">
-              <circle cx="25" cy="20" fill="var(--fill-0, #111111)" r="20" className="transition-colors" />
-              <circle cx="25" cy="20" fill="var(--fill-1, black)" fillOpacity="0.2" r="20" />
-              <circle cx="25" cy="20" fill="var(--fill-2, black)" fillOpacity="0.2" r="20" />
-              <circle cx="25" cy="20" fill="var(--fill-3, black)" fillOpacity="0.2" r="20" />
-            </g>
-            <defs>
-              <filter colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse" height="50" id="filter0_d_3_860" width="50" x="0" y="0">
-                <feFlood floodOpacity="0" result="BackgroundImageFix" />
-                <feColorMatrix in="SourceAlpha" result="hardAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
-                <feOffset dy="5" />
-                <feGaussianBlur stdDeviation="2.5" />
-                <feComposite in2="hardAlpha" operator="out" />
-                <feColorMatrix type="matrix" values="0 0 0 0 0.0666667 0 0 0 0 0.0666667 0 0 0 0 0.0666667 0 0 0 0.2 0" />
-                <feBlend in2="BackgroundImageFix" mode="normal" result="effect1_dropShadow_3_860" />
-                <feBlend in="SourceGraphic" in2="effect1_dropShadow_3_860" mode="normal" result="shape" />
-              </filter>
-            </defs>
-          </svg>
-        </div>
-      </div>
-      <IcSize3 />
-    </div>
-  );
-}
 
 function Search({ onSubmit }: { onSubmit: (question: string) => void }) {
   const [inputValue, setInputValue] = useState("");

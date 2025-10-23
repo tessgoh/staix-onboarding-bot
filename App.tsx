@@ -64,7 +64,7 @@ export default function App() {
         
         // 만약 여전히 답변을 찾지 못했다면, 객체의 첫 번째 문자열 값 찾기
         if (!answer || answer === '') {
-          for (const [key, value] of Object.entries(data)) {
+          for (const [, value] of Object.entries(data)) {
             if (typeof value === 'string' && value.trim().length > 0) {
               answer = value;
               break;
