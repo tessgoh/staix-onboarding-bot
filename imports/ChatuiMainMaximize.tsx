@@ -373,15 +373,6 @@ function Input({ value, onChange, onSubmit }: { value: string; onChange: (value:
   );
 }
 
-function IcArrowNarrowUp() {
-  return (
-    <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 24 24">
-      <g id="ic-arrow-narrow-up">
-        <path clipRule="evenodd" d={svgPaths.p2ffcfc80} fill="var(--fill-0, white)" fillRule="evenodd" id="icon" />
-      </g>
-    </svg>
-  );
-}
 
 
 
