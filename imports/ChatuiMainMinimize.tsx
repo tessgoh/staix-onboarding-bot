@@ -37,16 +37,6 @@ function IcMaximize() {
   );
 }
 
-function IcSize() {
-  return (
-    <div
-      className="content-stretch flex flex-col gap-[8px] items-start justify-center relative shrink-0"
-      data-name="ic_size"
-    >
-      <IcMaximize />
-    </div>
-  );
-}
 
 function IcClose() {
   return (
@@ -102,16 +92,6 @@ function IcClose1() {
   );
 }
 
-function IcSize1() {
-  return (
-    <div
-      className="content-stretch flex flex-col gap-[8px] items-start justify-center relative shrink-0"
-      data-name="ic_size"
-    >
-      <IcClose1 />
-    </div>
-  );
-}
 
 
 function IcShare() {
@@ -712,16 +692,6 @@ function IcArrowNarrowUp2() {
   );
 }
 
-function IcSize3() {
-  return (
-    <div
-      className="absolute content-stretch flex flex-col gap-[8px] items-start justify-center left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%] pointer-events-none"
-      data-name="ic_size"
-    >
-      <IcArrowNarrowUp2 />
-    </div>
-  );
-}
 
 
 function Search({
