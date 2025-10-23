@@ -10,17 +10,6 @@ interface Message {
   isLoading?: boolean;
 }
 
-function IcMinimize() {
-  return (
-    <div className="relative shrink-0 size-[24px]" data-name="ic-minimize">
-      <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 24 24">
-        <g id="ic-minimize">
-          <path d={svgPaths.p8b89dc0} id="Icon" stroke="var(--stroke-0, black)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" />
-        </g>
-      </svg>
-    </div>
-  );
-}
 
 
 function IcClose() {
@@ -38,13 +27,6 @@ function IcClose() {
   );
 }
 
-function IcClose1() {
-  return (
-    <div className="relative shrink-0 size-[24px]" data-name="ic-close">
-      <IcClose />
-    </div>
-  );
-}
 
 
 
@@ -423,13 +405,6 @@ function IcArrowNarrowUp1() {
   );
 }
 
-function IcArrowNarrowUp2() {
-  return (
-    <div className="relative shrink-0 size-[24px]" data-name="ic-arrow-narrow-up">
-      <IcArrowNarrowUp1 />
-    </div>
-  );
-}
 
 
 
