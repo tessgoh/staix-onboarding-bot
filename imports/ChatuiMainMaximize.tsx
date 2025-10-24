@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import svgPaths from "./svg-1rxwmvuc5a";
-import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import BubbleLoader from "../components/BubbleLoader";
 import Header from "./Header";
 
@@ -9,12 +10,6 @@ interface Message {
   answer: string;
   isLoading?: boolean;
 }
-
-
-
-
-
-
 
 function IcShare() {
   return (
@@ -201,35 +196,51 @@ function AnswerBubble({ answer, isLoading }: { answer: string; isLoading?: boole
     );
   }
 
-  // Check if answer contains image URL
-  const hasImage = answer.includes('http') && (answer.includes('.jpg') || answer.includes('.jpeg') || answer.includes('.png') || answer.includes('.gif') || answer.includes('.webp'));
-
   return (
-    <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-full">
-      <div className="bg-neutral-100 relative rounded-[10px] shrink-0 w-full">
-        <div className="overflow-clip rounded-[inherit] size-full">
-          <div className="box-border content-stretch flex flex-col gap-[12px] items-start px-[20px] py-[12px] relative w-full">
-            <div className="font-['Pretendard_Variable',_sans-serif] relative shrink-0 text-[#111111] w-full break-words whitespace-pre-wrap" style={{
-              fontSize: 'var(--paragraph-100-size)',
-              fontWeight: 'var(--paragraph-100-regular)',
-              lineHeight: 'var(--paragraph-100-line-height)',
-              letterSpacing: 'var(--paragraph-100-letter-spacing)',
-              overflowWrap: 'break-word',
-              wordBreak: 'break-word'
-            }} dangerouslySetInnerHTML={{
-              __html: answer
-                .replace(/\\n/g, '\n')
-                .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">$1</a>')
-            }} />
-            {hasImage && (
-              <ImageWithFallback 
-                src="https://images.unsplash.com/photo-1658552963426-1083cf9c495e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMHRlY2hub2xvZ3klMjBkaWdpdGFsfGVufDF8fHx8MTc2MTA0Nzk4NHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                alt="Answer illustration"
-                className="h-[200px] shrink-0 w-full object-cover rounded-[6px]"
+    <div className="break-words bg-neutral-100 rounded-[10px] px-[20px] py-[12px] w-full">
+      <div 
+        className="font-['Pretendard_Variable',_sans-serif] text-[#111111] prose prose-sm max-w-none"
+        style={{
+          fontSize: 'var(--paragraph-100-size)',
+          fontWeight: 'var(--paragraph-100-regular)',
+          lineHeight: 'var(--paragraph-100-line-height)',
+          letterSpacing: 'var(--paragraph-100-letter-spacing)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.8rem',
+        }}
+      >
+        <ReactMarkdown 
+          remarkPlugins={[remarkGfm]}
+          components={{
+            a: ({ node, ...props }) => (
+              <a 
+                {...props} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-[#0070FF] underline"
               />
-            )}
-          </div>
-        </div>
+            ),
+            ul: ({ node, ...props }) => (
+              <ul style={{ paddingLeft: '1rem', listStyleType: 'disc' }} {...props} />
+            ),
+            ol: ({ node, ...props }) => (
+              <ol style={{ paddingLeft: '1rem', listStyleType: 'decimal' }} {...props} />
+            ),
+            li: ({ node, ...props }) => (
+              <li style={{ margin: '0.25rem 0' }} {...props} />
+            ),
+            img: ({ node, ...props }) => (
+              <img 
+                {...props} 
+                className="h-[200px] shrink-0 w-full object-cover rounded-[6px] mt-[12px]"
+                alt={props.alt || ''}
+              />
+            ),
+          }}
+        >
+          {answer.replace(/\\n/g, '\n')}
+        </ReactMarkdown>
       </div>
     </div>
   );
@@ -251,25 +262,27 @@ function ChatView({ messages, scrollContainerRef, isToggling }: { messages: Mess
   }, [messages, isToggling]);
 
   return (
-    <div ref={scrollContainerRef} className="relative flex-1 w-full overflow-auto" data-name="text">
-      <div className="flex flex-col items-center size-full">
-        <div className="box-border content-stretch flex flex-col gap-[32px] items-center p-[20px] relative w-full">
-          {messages.map((message, index) => (
-            <div key={index} className="flex flex-col gap-[32px] w-full">
-              <QuestionBubble question={message.question} />
-              <AnswerBubble answer={message.answer} isLoading={message.isLoading} />
-            </div>
-          ))}
-          <div ref={chatEndRef} />
+    <>
+      <div ref={scrollContainerRef} className="relative flex-1 w-full overflow-auto floating-scrollbar" data-name="text">
+        <div className="flex flex-col items-center size-full">
+          <div className="box-border content-stretch flex flex-col gap-[32px] items-center p-[20px] relative w-full">
+            {messages.map((message, index) => (
+              <div key={index} className="flex flex-col gap-[32px] w-full">
+                <QuestionBubble question={message.question} />
+                <AnswerBubble answer={message.answer} isLoading={message.isLoading} />
+              </div>
+            ))}
+            <div ref={chatEndRef} />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
 function InitialView({ onFaqClick }: { onFaqClick: (question: string) => void }) {
   return (
-    <div className="relative flex-1 w-full overflow-auto" data-name="text">
+    <div className="relative flex-1 w-full overflow-auto floating-scrollbar" data-name="text">
       <div className="flex flex-col items-center justify-end size-full">
         <div className="box-border content-stretch flex flex-col gap-[32px] items-center justify-end px-[20px] py-[120px] relative w-full">
           <Head />
