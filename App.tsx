@@ -26,11 +26,7 @@ export default function App() {
 
     try {
       // Get webhook URL from environment variable
-      const webhookUrl = import.meta.env.VITE_WEBHOOK_URL;
-      
-      if (!webhookUrl) {
-        throw new Error('VITE_WEBHOOK_URL is not configured');
-      }
+      const webhookUrl = "https://n8n-test.poc.letsur.ai/webhook/0b252675-23c2-47c7-a990-a0093a3463fa";
 
       // Send data to webhook
       const response = await fetch(webhookUrl, {
