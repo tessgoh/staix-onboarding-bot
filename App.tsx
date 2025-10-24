@@ -17,16 +17,23 @@ export default function App() {
 
   const handleSubmit = async (question: string) => {
     // Add message with loading state
-    const loadingMessage: Message = {
+    const newMessage: Message = {
       question,
       answer: '',
       isLoading: true
     };
-    setMessages(prevMessages => [...prevMessages, loadingMessage]);
+    setMessages(prevMessages => [...prevMessages, newMessage]);
 
     try {
+      // Get webhook URL from environment variable
+      const webhookUrl = import.meta.env.VITE_WEBHOOK_URL;
+      
+      if (!webhookUrl) {
+        throw new Error('VITE_WEBHOOK_URL is not configured');
+      }
+
       // Send data to webhook
-      const response = await fetch('https://n8n-test.poc.letsur.ai/webhook/0b252675-23c2-47c7-a990-a0093a3463fa', {
+      const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,55 +49,66 @@ export default function App() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
-      console.log('Webhook response:', data); // 디버깅을 위한 로그
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
       
-      // 다양한 응답 형식 처리
-      let answer = '';
-      if (typeof data === 'string') {
-        answer = data;
-      } else if (data && typeof data === 'object') {
-        // 가능한 모든 응답 필드 확인 (우선순위 순)
-        answer = data.output || 
-                 data.answer || 
-                 data.message || 
-                 data.response || 
-                 data.text || 
-                 data.content || 
-                 data.data ||
-                 data.result ||
-                 data.body ||
-                 data.payload;
+      if (!reader) {
+        throw new Error('응답 스트림을 읽을 수 없습니다.');
+      }
+
+      let accumulatedText = '';
+      let buffer = '';
+      
+      // Stream 읽기
+      while (true) {
+        const { done, value } = await reader.read();
         
-        // 만약 여전히 답변을 찾지 못했다면, 객체의 첫 번째 문자열 값 찾기
-        if (!answer || answer === '') {
-          for (const [, value] of Object.entries(data)) {
-            if (typeof value === 'string' && value.trim().length > 0) {
-              answer = value;
-              break;
+        if (done) {
+          break;
+        }
+        
+        // 디코딩된 청크를 버퍼에 추가
+        const chunk = decoder.decode(value, { stream: true });
+        buffer += chunk;
+        
+        // 줄바꿈으로 분리
+        const lines = buffer.split('\n');
+        
+        // 마지막 줄은 불완전할 수 있으므로 버퍼에 유지
+        buffer = lines.pop() || '';
+        
+        // 각 줄을 JSON으로 파싱
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          
+          try {
+            const data = JSON.parse(line);
+            
+            // type이 "item"인 경우에만 content 추출
+            if (data.type === 'item' && data.content) {
+              accumulatedText += data.content;
+              
+              // 실시간으로 메시지 업데이트
+              setMessages(prevMessages => {
+                const updatedMessages = [...prevMessages];
+                const lastIndex = updatedMessages.length - 1;
+                updatedMessages[lastIndex] = {
+                  question,
+                  answer: accumulatedText,
+                  isLoading: false
+                };
+                return updatedMessages;
+              });
             }
+          } catch (e) {
+            console.warn('JSON 파싱 에러:', line, e);
           }
         }
-        
-        // 마지막 수단으로 JSON 문자열화 (하지만 사용자 친화적이지 않음)
-        if (!answer || answer === '') {
-          answer = '응답을 받았지만 내용을 파싱할 수 없습니다.';
-        }
-      } else {
-        answer = '응답을 받았지만 내용을 파싱할 수 없습니다.';
       }
+
+      // 스트림이 끝나면 최종 업데이트
+      console.log('Stream completed. Final text:', accumulatedText);
       
-      // Update message with response
-      setMessages(prevMessages => {
-        const updatedMessages = [...prevMessages];
-        const lastIndex = updatedMessages.length - 1;
-        updatedMessages[lastIndex] = {
-          question,
-          answer: answer,
-          isLoading: false
-        };
-        return updatedMessages;
-      });
     } catch (error) {
       console.error('Webhook error:', error);
       
