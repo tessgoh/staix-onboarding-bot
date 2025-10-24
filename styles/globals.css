@@ -438,10 +438,10 @@
     }
 
     p {
-      font-size: var(--paragraph-200-size);
-      font-weight: var(--paragraph-200-regular);
-      line-height: var(--paragraph-200-line-height);
-      letter-spacing: var(--paragraph-200-letter-spacing);
+      font-size: var(--paragraph-100-size);
+      font-weight: var(--paragraph-100-regular);
+      line-height: var(--paragraph-100-line-height);
+      letter-spacing: var(--paragraph-100-letter-spacing);
     }
 
     label {
