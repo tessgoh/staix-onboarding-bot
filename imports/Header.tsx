@@ -143,19 +143,23 @@ function IcClose1() {
   );
 }
 
-function IcSize2() {
+function IcSize2({ onClick }: { onClick?: () => void }) {
   return (
-    <div className="content-stretch flex flex-col gap-[8px] items-start justify-center relative shrink-0 cursor-pointer hover:opacity-70 transition-opacity" data-name="ic_size">
+    <div 
+      className="content-stretch flex flex-col gap-[8px] items-start justify-center relative shrink-0 cursor-pointer hover:opacity-70 transition-opacity" 
+      data-name="ic_size"
+      onClick={onClick}
+    >
       <IcClose1 />
     </div>
   );
 }
 
-function Frame377022({ isMaximized }: { isMaximized?: boolean }) {
+function Frame377022({ isMaximized, onClose }: { isMaximized?: boolean; onClose?: () => void }) {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
       <IcSize1 isMaximized={isMaximized} />
-      <IcSize2 />
+      <IcSize2 onClick={onClose} />
     </div>
   );
 }
@@ -164,15 +168,16 @@ interface HeaderProps {
   onBackClick?: () => void;
   showBackButton?: boolean;
   isMaximized?: boolean;
+  onClose?: () => void;
 }
 
-export default function Header({ onBackClick, showBackButton, isMaximized }: HeaderProps) {
+export default function Header({ onBackClick, showBackButton, isMaximized, onClose }: HeaderProps) {
   return (
     <div className="relative rounded-[6px] w-full h-[60px]" data-name="header">
       <div className="flex flex-row items-center size-full">
         <div className="box-border content-stretch flex items-center justify-between px-[40px] py-[18px] relative size-full">
           <Frame377103 onBackClick={onBackClick} showBackButton={showBackButton} />
-          <Frame377022 isMaximized={isMaximized} />
+          <Frame377022 isMaximized={isMaximized} onClose={onClose} />
         </div>
       </div>
     </div>

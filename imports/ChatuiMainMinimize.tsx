@@ -317,38 +317,100 @@ function AnswerBubble({
     );
   }
 
-  // Check if answer contains image URL
-  const hasImage = answer.includes('http') && (answer.includes('.jpg') || answer.includes('.jpeg') || answer.includes('.png') || answer.includes('.gif') || answer.includes('.webp'));
+  // Extract image URLs from the answer, handling both plain URLs and URLs within HTML links
+  const extractImageUrls = (text: string) => {
+    const urls: string[] = [];
+    
+    // First, extract URLs from HTML links (already processed links)
+    const linkRegex = /<a[^>]+href="(https?:\/\/[^"]+\.(?:jpg|jpeg|png|gif|webp|svg)(?:\?[^"]*)?)"[^>]*>/gi;
+    let match;
+    while ((match = linkRegex.exec(text)) !== null) {
+      urls.push(match[1]);
+    }
+    
+    // Then, find remaining plain image URLs (not in links)
+    const plainImageRegex = /(?<!href=")(https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|gif|webp|svg)(?:\?[^\s"'<>]*)?)(?![^<]*<\/a>)/gi;
+    while ((match = plainImageRegex.exec(text)) !== null) {
+      urls.push(match[1]);
+    }
+    
+    return urls;
+  };
+  
+  const imageUrls = extractImageUrls(answer);
+  
+  console.log('Found image URLs:', imageUrls);
+  
+  // Process text to replace image URLs with placeholders
+  const processText = (text: string) => {
+    let processedText = text.replace(/\\n/g, '\n');
+    
+    // Replace image URLs with placeholders (both in links and plain URLs)
+    imageUrls.forEach((url, index) => {
+      // Replace URLs within HTML links
+      const linkPattern = new RegExp(`<a[^>]+href="${url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*>[^<]*</a>`, 'gi');
+      processedText = processedText.replace(linkPattern, `__IMAGE_PLACEHOLDER_${index}__`);
+      
+      // Replace remaining plain URLs
+      const plainPattern = new RegExp(url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+      processedText = processedText.replace(plainPattern, `__IMAGE_PLACEHOLDER_${index}__`);
+    });
+    
+    return processedText;
+  };
+  
+  // Split by image placeholders and create components
+  const processedText = processText(answer);
+  const parts = processedText.split(/__IMAGE_PLACEHOLDER_(\d+)__/);
+  const elements: React.ReactNode[] = [];
+  
+  for (let i = 0; i < parts.length; i++) {
+    if (i % 2 === 0) {
+      // Text part
+      if (parts[i].trim()) {
+        elements.push(
+          <div 
+            key={`text-${i}`}
+            className="font-['Pretendard_Variable',_sans-serif] text-[#111111] break-words whitespace-pre-wrap" 
+            style={{
+              fontSize: "var(--paragraph-100-size)",
+              fontWeight: "var(--paragraph-100-regular)",
+              lineHeight: "var(--paragraph-100-line-height)",
+              letterSpacing: "var(--paragraph-100-letter-spacing)",
+              overflowWrap: "break-word",
+              wordBreak: "break-word"
+            }}
+            dangerouslySetInnerHTML={{ 
+              __html: parts[i].replace(/\\n/g, '\n')
+            }}
+          />
+        );
+      }
+    } else {
+      // Image part
+      const imageIndex = parseInt(parts[i]);
+      if (imageIndex >= 0 && imageIndex < imageUrls.length) {
+        console.log(`Rendering image ${imageIndex}:`, imageUrls[imageIndex]);
+        elements.push(
+          <div key={`image-${imageIndex}`} className="my-3 w-full">
+            <ImageWithFallback
+              src={imageUrls[imageIndex]}
+              alt="Answer image"
+              className="w-full object-contain rounded-[6px] max-w-full"
+              style={{ height: 'auto', maxHeight: '300px' }}
+            />
+          </div>
+        );
+      }
+    }
+  }
   
   return (
     <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-full">
       <div className="bg-neutral-100 relative rounded-[10px] shrink-0 w-full">
         <div className="overflow-clip rounded-[inherit] size-full">
           <div className="box-border content-stretch flex flex-col gap-[12px] items-start px-[20px] py-[12px] relative w-full">
-            <div
-              className="font-['Pretendard_Variable',_sans-serif] relative shrink-0 text-[#111111] w-full break-words whitespace-pre-wrap"
-              style={{
-                fontSize: "var(--paragraph-100-size)",
-                fontWeight: "var(--paragraph-100-regular)",
-                lineHeight: "var(--paragraph-100-line-height)",
-                letterSpacing:
-                  "var(--paragraph-100-letter-spacing)",
-                overflowWrap: "break-word",
-                wordBreak: "break-word",
-              }}
-              dangerouslySetInnerHTML={{
-                __html: answer
-                  .replace(/\\n/g, '\n')
-                  .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">$1</a>')
-              }}
-            />
-            {hasImage && (
-              <ImageWithFallback
-                src="https://images.unsplash.com/photo-1658552963426-1083cf9c495e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMHRlY2hub2xvZ3klMjBkaWdpdGFsfGVufDF8fHx8MTc2MTA0Nzk4NHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                alt="Answer illustration"
-                className="h-[137px] shrink-0 w-full object-cover rounded-[6px]"
-              />
-            )}
+            {elements}
           </div>
         </div>
       </div>
@@ -621,6 +683,7 @@ interface ChatuiMainMinimizeProps {
   scrollContainerRef?: React.RefObject<HTMLDivElement>;
   isToggling?: boolean;
   onBackToMain?: () => void;
+  onClose?: () => void;
 }
 
 export default function ChatuiMainMinimize({
@@ -629,6 +692,7 @@ export default function ChatuiMainMinimize({
   scrollContainerRef,
   isToggling,
   onBackToMain,
+  onClose,
 }: ChatuiMainMinimizeProps) {
   return (
     <div
@@ -639,6 +703,7 @@ export default function ChatuiMainMinimize({
         onBackClick={onBackToMain}
         showBackButton={messages.length > 0}
         isMaximized={false}
+        onClose={onClose}
       />
       {messages.length === 0 ? (
         <InitialView onFaqClick={onSubmit} />
