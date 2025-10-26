@@ -68,18 +68,20 @@ export default function App() {
 
   const handleSubmit = async (question: string) => {
     // Add message with loading state
-    const loadingMessage: Message = {
+    const newMessage: Message = {
       question,
       answer: '',
       isLoading: true
     };
-    setMessages(prevMessages => [...prevMessages, loadingMessage]);
+    setMessages(prevMessages => [...prevMessages, newMessage]);
 
     try {
       console.log('Sending request to webhook...', question);
       
+      // Get webhook URL from environment variable
+      const webhookUrl = "https://n8n-test.poc.letsur.ai/webhook/0b252675-23c2-47c7-a990-a0093a3463fa";
       // Send data to webhook
-      const response = await fetch('https://n8n-test.poc.letsur.ai/webhook/0b252675-23c2-47c7-a990-a0093a3463fa', {
+      const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -100,6 +102,7 @@ export default function App() {
         throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
 
+<<<<<<< HEAD
       // Handle streaming response
       const responseText = await response.text();
       console.log('Webhook response text:', responseText);

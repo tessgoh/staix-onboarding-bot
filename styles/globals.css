@@ -438,10 +438,10 @@
     }
 
     p {
-      font-size: var(--paragraph-200-size);
-      font-weight: var(--paragraph-200-regular);
-      line-height: var(--paragraph-200-line-height);
-      letter-spacing: var(--paragraph-200-letter-spacing);
+      font-size: var(--paragraph-100-size);
+      font-weight: var(--paragraph-100-regular);
+      line-height: var(--paragraph-100-line-height);
+      letter-spacing: var(--paragraph-100-letter-spacing);
     }
 
     label {
@@ -476,4 +476,29 @@
 
 html {
   font-size: var(--font-size);
+}
+
+
+.floating-scrollbar {
+  overflow: overlay;
+}
+.floating-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.floating-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.floating-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.floating-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+}
+.floating-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+.floating-scrollbar::-webkit-scrollbar-thumb:active {
+  background: rgba(0, 0, 0, 0.4);
 }

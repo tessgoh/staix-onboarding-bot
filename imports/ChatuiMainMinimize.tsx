@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import svgPaths from "./svg-npkfhtmpf5";
-import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import BubbleLoader from "../components/BubbleLoader";
 import Header from "./Header";
 
@@ -317,102 +318,51 @@ function AnswerBubble({
     );
   }
 
-  // Extract image URLs from the answer, handling both plain URLs and URLs within HTML links
-  const extractImageUrls = (text: string) => {
-    const urls: string[] = [];
-    
-    // First, extract URLs from HTML links (already processed links)
-    const linkRegex = /<a[^>]+href="(https?:\/\/[^"]+\.(?:jpg|jpeg|png|gif|webp|svg)(?:\?[^"]*)?)"[^>]*>/gi;
-    let match;
-    while ((match = linkRegex.exec(text)) !== null) {
-      urls.push(match[1]);
-    }
-    
-    // Then, find remaining plain image URLs (not in links)
-    const plainImageRegex = /(?<!href=")(https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|gif|webp|svg)(?:\?[^\s"'<>]*)?)(?![^<]*<\/a>)/gi;
-    while ((match = plainImageRegex.exec(text)) !== null) {
-      urls.push(match[1]);
-    }
-    
-    return urls;
-  };
-  
-  const imageUrls = extractImageUrls(answer);
-  
-  console.log('Found image URLs:', imageUrls);
-  
-  // Process text to replace image URLs with placeholders
-  const processText = (text: string) => {
-    let processedText = text.replace(/\\n/g, '\n');
-    
-    // Replace image URLs with placeholders (both in links and plain URLs)
-    imageUrls.forEach((url, index) => {
-      // Replace URLs within HTML links
-      const linkPattern = new RegExp(`<a[^>]+href="${url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"[^>]*>[^<]*</a>`, 'gi');
-      processedText = processedText.replace(linkPattern, `__IMAGE_PLACEHOLDER_${index}__`);
-      
-      // Replace remaining plain URLs
-      const plainPattern = new RegExp(url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-      processedText = processedText.replace(plainPattern, `__IMAGE_PLACEHOLDER_${index}__`);
-    });
-    
-    return processedText;
-  };
-  
-  // Split by image placeholders and create components
-  const processedText = processText(answer);
-  const parts = processedText.split(/__IMAGE_PLACEHOLDER_(\d+)__/);
-  const elements: React.ReactNode[] = [];
-  
-  for (let i = 0; i < parts.length; i++) {
-    if (i % 2 === 0) {
-      // Text part
-      if (parts[i].trim()) {
-        elements.push(
-          <div 
-            key={`text-${i}`}
-            className="font-['Pretendard_Variable',_sans-serif] text-[#111111] break-words whitespace-pre-wrap" 
-            style={{
-              fontSize: "var(--paragraph-100-size)",
-              fontWeight: "var(--paragraph-100-regular)",
-              lineHeight: "var(--paragraph-100-line-height)",
-              letterSpacing: "var(--paragraph-100-letter-spacing)",
-              overflowWrap: "break-word",
-              wordBreak: "break-word"
-            }}
-            dangerouslySetInnerHTML={{ 
-              __html: parts[i].replace(/\\n/g, '\n')
-            }}
-          />
-        );
-      }
-    } else {
-      // Image part
-      const imageIndex = parseInt(parts[i]);
-      if (imageIndex >= 0 && imageIndex < imageUrls.length) {
-        console.log(`Rendering image ${imageIndex}:`, imageUrls[imageIndex]);
-        elements.push(
-          <div key={`image-${imageIndex}`} className="my-3 w-full">
-            <ImageWithFallback
-              src={imageUrls[imageIndex]}
-              alt="Answer image"
-              className="w-full object-contain rounded-[6px] max-w-full"
-              style={{ height: 'auto', maxHeight: '300px' }}
-            />
-          </div>
-        );
-      }
-    }
-  }
-  
   return (
-    <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-full">
-      <div className="bg-neutral-100 relative rounded-[10px] shrink-0 w-full">
-        <div className="overflow-clip rounded-[inherit] size-full">
-          <div className="box-border content-stretch flex flex-col gap-[12px] items-start px-[20px] py-[12px] relative w-full">
-            {elements}
-          </div>
-        </div>
+    <div className="break-words bg-neutral-100 rounded-[10px] px-[20px] py-[12px] w-full">
+      <div 
+        className="font-['Pretendard_Variable',_sans-serif] text-[#111111] prose prose-sm max-w-none"
+        style={{
+          fontSize: 'var(--paragraph-100-size)',
+          fontWeight: 'var(--paragraph-100-regular)',
+          lineHeight: 'var(--paragraph-100-line-height)',
+          letterSpacing: 'var(--paragraph-100-letter-spacing)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.8rem',
+        }}
+      >
+        <ReactMarkdown 
+          remarkPlugins={[remarkGfm]}
+          components={{
+            a: ({ node, ...props }) => (
+              <a 
+                {...props} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-[#0070FF] underline"
+              />
+            ),
+            ul: ({ node, ...props }) => (
+              <ul style={{ paddingLeft: '1rem', listStyleType: 'disc' }} {...props} />
+            ),
+            ol: ({ node, ...props }) => (
+              <ol style={{ paddingLeft: '1rem', listStyleType: 'decimal' }} {...props} />
+            ),
+            li: ({ node, ...props }) => (
+              <li style={{ margin: '0.25rem 0' }} {...props} />
+            ),
+            img: ({ node, ...props }) => (
+              <img 
+                {...props} 
+                className="h-[137px] shrink-0 w-full object-cover rounded-[6px] mt-[12px]"
+                alt={props.alt || ''}
+              />
+            ),
+          }}
+        >
+          {answer.replace(/\\n/g, '\n')}
+        </ReactMarkdown>
       </div>
     </div>
   );
@@ -445,29 +395,31 @@ function ChatView({
   }, [messages, isToggling]);
 
   return (
-    <div
-      ref={scrollContainerRef}
-      className="relative flex-1 w-full overflow-auto"
-      data-name="text"
-    >
-      <div className="flex flex-col items-center size-full">
-        <div className="box-border content-stretch flex flex-col gap-[32px] items-center p-[20px] relative w-full">
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className="flex flex-col gap-[32px] w-full"
-            >
-              <QuestionBubble question={message.question} />
-              <AnswerBubble
-                answer={message.answer}
-                isLoading={message.isLoading}
-              />
-            </div>
-          ))}
-          <div ref={chatEndRef} />
+    <>
+      <div
+        ref={scrollContainerRef}
+        className="relative flex-1 w-full overflow-auto floating-scrollbar"
+        data-name="text"
+      >
+        <div className="flex flex-col items-center size-full">
+          <div className="box-border content-stretch flex flex-col gap-[32px] items-center p-[20px] relative w-full">
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className="flex flex-col gap-[32px] w-full"
+              >
+                <QuestionBubble question={message.question} />
+                <AnswerBubble
+                  answer={message.answer}
+                  isLoading={message.isLoading}
+                />
+              </div>
+            ))}
+            <div ref={chatEndRef} />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -478,7 +430,7 @@ function InitialView({
 }) {
   return (
     <div
-      className="relative flex-1 w-full overflow-auto"
+      className="relative flex-1 w-full overflow-auto floating-scrollbar"
       data-name="text"
     >
       <div className="flex flex-col items-center justify-end size-full">
