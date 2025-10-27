@@ -16,47 +16,76 @@ function processAnswerWithLinks(text: string): string {
     ''
   );
   
-  // Pattern 0: [키워드] followed by URL (but not already linked)
-  // Matches: 자세한 절차는 여기에서 확인하세요: [키워드] https://example.com
-  processedText = processedText.replace(
-    /(?<!<a[^>]*>)\[([^\]]+)\]\s+(https?:\/\/[^\s]+)(?![^<]*<\/a>)/g,
-    '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">[$1]</a>'
-  );
+  // Split text into parts: already linked parts and plain text parts
+  const parts: string[] = [];
+  let lastIndex = 0;
   
-  // Pattern 1: "텍스트" followed by URL on the same line (but not already linked)
-  // Matches: "텍스트" https://example.com
-  processedText = processedText.replace(
-    /(?<!<a[^>]*>)"([^"]+)"\s+(https?:\/\/[^\s]+)(?![^<]*<\/a>)/g,
-    '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">$1</a>'
-  );
+  // Find all existing links and split the text
+  const linkRegex = /<a[^>]*>.*?<\/a>/g;
+  let match;
   
-  // Pattern 2: "텍스트" followed by URL on the next line (but not already linked)
-  // Matches: "텍스트"\nhttps://example.com
-  processedText = processedText.replace(
-    /(?<!<a[^>]*>)"([^"]+)"\s*\n\s*(https?:\/\/[^\s]+)(?![^<]*<\/a>)/g,
-    '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">$1</a>'
-  );
-  
-  // Pattern 3: 텍스트 followed by URL (without quotes, but not already linked)
-  // Matches: 자세한 내용은 https://example.com 참고하세요
-  processedText = processedText.replace(
-    /(?<!<a[^>]*>)([가-힣\s]+)\s+(https?:\/\/[^\s]+)(?![^<]*<\/a>)/g,
-    (match, text, url) => {
-      // Only convert if the text is meaningful (not just spaces)
-      if (text.trim().length > 2) {
-        return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">${text.trim()}</a>`;
-      }
-      return match;
+  while ((match = linkRegex.exec(processedText)) !== null) {
+    // Add text before the link
+    if (match.index > lastIndex) {
+      parts.push(processedText.slice(lastIndex, match.index));
     }
-  );
+    // Add the link as-is
+    parts.push(match[0]);
+    lastIndex = match.index + match[0].length;
+  }
   
-  // Convert remaining standalone URLs to links (but not already linked ones)
-  processedText = processedText.replace(
-    /(?<!href=")(https?:\/\/[^\s<>"]+)(?![^<]*<\/a>)/g,
-    '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">$1</a>'
-  );
+  // Add remaining text
+  if (lastIndex < processedText.length) {
+    parts.push(processedText.slice(lastIndex));
+  }
   
-  return processedText;
+  // Process only the non-linked parts
+  const processedParts = parts.map(part => {
+    // Skip if it's already a link
+    if (part.startsWith('<a ') && part.endsWith('</a>')) {
+      return part;
+    }
+    
+    // Pattern 0: [키워드] followed by URL
+    part = part.replace(
+      /\[([^\]]+)\]\s+(https?:\/\/[^\s]+)/g,
+      '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">[$1]</a>'
+    );
+    
+    // Pattern 1: "텍스트" followed by URL on the same line
+    part = part.replace(
+      /"([^"]+)"\s+(https?:\/\/[^\s]+)/g,
+      '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">$1</a>'
+    );
+    
+    // Pattern 2: "텍스트" followed by URL on the next line
+    part = part.replace(
+      /"([^"]+)"\s*\n\s*(https?:\/\/[^\s]+)/g,
+      '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">$1</a>'
+    );
+    
+    // Pattern 3: 텍스트 followed by URL (without quotes)
+    part = part.replace(
+      /([가-힣\s]+)\s+(https?:\/\/[^\s]+)/g,
+      (match, text, url) => {
+        // Only convert if the text is meaningful (not just spaces)
+        if (text.trim().length > 2) {
+          return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">${text.trim()}</a>`;
+        }
+        return match;
+      }
+    );
+    
+    // Convert remaining standalone URLs to links
+    part = part.replace(
+      /(https?:\/\/[^\s<>"]+)/g,
+      '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">$1</a>'
+    );
+    
+    return part;
+  });
+  
+  return processedParts.join('');
 }
 
 export default function App() {
