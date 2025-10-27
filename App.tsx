@@ -252,7 +252,7 @@ export default function App() {
   }, [isMaximized, isToggling, savedScrollTop]);
 
   return (
-    <div className="size-full flex items-center justify-center p-8">
+    <div className="size-full flex items-center justify-center">
       <div 
         className="relative transition-all duration-300"
         onClick={(e) => {
