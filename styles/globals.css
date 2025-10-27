@@ -476,6 +476,24 @@
 
 html {
   font-size: var(--font-size);
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  @apply bg-background text-foreground;
+  font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+#root {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
 

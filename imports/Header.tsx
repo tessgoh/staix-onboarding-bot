@@ -112,9 +112,13 @@ function IcMinimize() {
   );
 }
 
-function IcSize1({ isMaximized }: { isMaximized?: boolean }) {
+function IcSize1({ isMaximized, onClick }: { isMaximized?: boolean; onClick?: () => void }) {
   return (
-    <div className="content-stretch flex flex-col gap-[8px] items-start justify-center relative shrink-0 cursor-pointer hover:opacity-70 transition-opacity" data-name="ic_size">
+    <div 
+      className="content-stretch flex flex-col gap-[8px] items-start justify-center relative shrink-0 cursor-pointer hover:opacity-70 transition-opacity" 
+      data-name="ic_size"
+      onClick={onClick}
+    >
       {isMaximized ? <IcMinimize /> : <IcMaximize />}
     </div>
   );
@@ -155,10 +159,10 @@ function IcSize2({ onClick }: { onClick?: () => void }) {
   );
 }
 
-function Frame377022({ isMaximized, onClose }: { isMaximized?: boolean; onClose?: () => void }) {
+function Frame377022({ isMaximized, onClose, onToggle }: { isMaximized?: boolean; onClose?: () => void; onToggle?: () => void }) {
   return (
     <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
-      <IcSize1 isMaximized={isMaximized} />
+      <IcSize1 isMaximized={isMaximized} onClick={onToggle} />
       <IcSize2 onClick={onClose} />
     </div>
   );
@@ -169,15 +173,16 @@ interface HeaderProps {
   showBackButton?: boolean;
   isMaximized?: boolean;
   onClose?: () => void;
+  onToggle?: () => void;
 }
 
-export default function Header({ onBackClick, showBackButton, isMaximized, onClose }: HeaderProps) {
+export default function Header({ onBackClick, showBackButton, isMaximized, onClose, onToggle }: HeaderProps) {
   return (
     <div className="relative rounded-[6px] w-full h-[60px]" data-name="header">
       <div className="flex flex-row items-center size-full">
         <div className="box-border content-stretch flex items-center justify-between px-[40px] py-[18px] relative size-full">
           <Frame377103 onBackClick={onBackClick} showBackButton={showBackButton} />
-          <Frame377022 isMaximized={isMaximized} onClose={onClose} />
+          <Frame377022 isMaximized={isMaximized} onClose={onClose} onToggle={onToggle} />
         </div>
       </div>
     </div>

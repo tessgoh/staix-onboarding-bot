@@ -433,8 +433,8 @@ function InitialView({
       className="relative flex-1 w-full overflow-auto floating-scrollbar"
       data-name="text"
     >
-      <div className="flex flex-col items-center justify-end size-full">
-        <div className="box-border content-stretch flex flex-col gap-[32px] items-center justify-end px-[20px] py-[120px] relative w-full">
+      <div className="flex flex-col items-center justify-center size-full">
+        <div className="box-border content-stretch flex flex-col gap-[32px] items-center justify-center px-[20px] py-[20px] relative w-full">
           <Head />
           <Faq onFaqClick={onFaqClick} />
         </div>
@@ -636,6 +636,7 @@ interface ChatuiMainMinimizeProps {
   isToggling?: boolean;
   onBackToMain?: () => void;
   onClose?: () => void;
+  onToggle?: () => void;
 }
 
 export default function ChatuiMainMinimize({
@@ -645,6 +646,7 @@ export default function ChatuiMainMinimize({
   isToggling,
   onBackToMain,
   onClose,
+  onToggle,
 }: ChatuiMainMinimizeProps) {
   return (
     <div
@@ -656,6 +658,7 @@ export default function ChatuiMainMinimize({
         showBackButton={messages.length > 0}
         isMaximized={false}
         onClose={onClose}
+        onToggle={onToggle}
       />
       {messages.length === 0 ? (
         <InitialView onFaqClick={onSubmit} />
