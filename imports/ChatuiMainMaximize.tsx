@@ -283,8 +283,8 @@ function ChatView({ messages, scrollContainerRef, isToggling }: { messages: Mess
 function InitialView({ onFaqClick }: { onFaqClick: (question: string) => void }) {
   return (
     <div className="relative flex-1 w-full overflow-auto floating-scrollbar" data-name="text">
-      <div className="flex flex-col items-center justify-end size-full">
-        <div className="box-border content-stretch flex flex-col gap-[32px] items-center justify-end px-[20px] py-[120px] relative w-full">
+      <div className="flex flex-col items-center justify-center size-full">
+        <div className="box-border content-stretch flex flex-col gap-[32px] items-center justify-center px-[20px] py-[20px] relative w-full">
           <Head />
           <Faq onFaqClick={onFaqClick} />
         </div>
@@ -429,12 +429,13 @@ interface ChatuiMainMaximizeProps {
   isToggling?: boolean;
   onBackToMain?: () => void;
   onClose?: () => void;
+  onToggle?: () => void;
 }
 
-export default function ChatuiMainMaximize({ messages, onSubmit, scrollContainerRef, isToggling, onBackToMain, onClose }: ChatuiMainMaximizeProps) {
+export default function ChatuiMainMaximize({ messages, onSubmit, scrollContainerRef, isToggling, onBackToMain, onClose, onToggle }: ChatuiMainMaximizeProps) {
   return (
     <div className="bg-white box-border content-stretch flex flex-col items-center overflow-clip relative rounded-[6px] w-[680px] min-h-[668px] max-h-[760px]" data-name="chatui-main-maximize">
-      <Header onBackClick={onBackToMain} showBackButton={messages.length > 0} isMaximized={true} onClose={onClose} />
+      <Header onBackClick={onBackToMain} showBackButton={messages.length > 0} isMaximized={true} onClose={onClose} onToggle={onToggle} />
       {messages.length === 0 ? (
         <InitialView onFaqClick={onSubmit} />
       ) : (

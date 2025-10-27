@@ -224,18 +224,46 @@ export default function App() {
       setSavedScrollTop(scrollContainerRef.current.scrollTop);
     }
     setIsToggling(true);
-    setIsMaximized(!isMaximized);
+    const newMaximizedState = !isMaximized;
+    setIsMaximized(newMaximizedState);
+    
+    // 디버깅을 위한 로그
+    console.log('handleToggle called, isMaximized:', isMaximized, 'newMaximizedState:', newMaximizedState);
+    console.log('window.parent !== window:', window.parent !== window);
+    
+    // iframe에서 부모 창으로 상태 전달
+    if (window.parent !== window) {
+      const message = {
+        type: 'chat-toggle',
+        isMaximized: newMaximizedState
+      };
+      console.log('Sending message to parent:', message);
+      window.parent.postMessage(message, '*');
+    }
   };
 
   const handleBackToMain = () => {
     setMessages([]);
+    
+    // iframe에서 부모 창으로 메시지 초기화 알림
+    if (window.parent !== window) {
+      window.parent.postMessage({
+        type: 'chat-reset'
+      }, '*');
+    }
   };
 
   const handleClose = () => {
-    // 창 종료 기능 - 현재는 페이지를 새로고침하거나 숨기는 방식으로 구현
-    // 실제 앱에서는 window.close() 또는 다른 방식으로 구현할 수 있습니다
-    if (window.confirm('정말로 창을 닫으시겠습니까?')) {
-      window.close();
+    // iframe에서 부모 창으로 닫기 요청
+    if (window.parent !== window) {
+      window.parent.postMessage({
+        type: 'chat-close'
+      }, '*');
+    } else {
+      // iframe이 아닌 경우 기존 동작
+      if (window.confirm('정말로 창을 닫으시겠습니까?')) {
+        window.close();
+      }
     }
   };
 
@@ -251,24 +279,59 @@ export default function App() {
     }
   }, [isMaximized, isToggling, savedScrollTop]);
 
+  // 실제 화면 크기 전달을 위한 useEffect
+  useEffect(() => {
+    const sendActualHeightToParent = () => {
+      if (window.parent !== window) {
+        // 실제 DOM 요소의 크기 측정
+        const chatContainer = document.querySelector('[data-name="chatui-main-minimize"], [data-name="chatui-main-maximize"]');
+        if (chatContainer) {
+          const actualHeight = chatContainer.getBoundingClientRect().height;
+          console.log('실제 높이 전달:', actualHeight);
+          
+          window.parent.postMessage({
+            type: 'chat-height-change',
+            height: actualHeight
+          }, '*');
+        }
+      }
+    };
+
+    // 초기 전달
+    setTimeout(sendActualHeightToParent, 100);
+
+    // ResizeObserver로 크기 변화 감지
+    const resizeObserver = new ResizeObserver(sendActualHeightToParent);
+    resizeObserver.observe(document.body);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [isMaximized, messages]);
+
   return (
     <div className="size-full flex items-center justify-center">
-      <div 
-        className="relative transition-all duration-300"
-        onClick={(e) => {
-          const target = e.target as HTMLElement;
-          // Toggle when clicking on maximize/minimize icons
-          if (target.closest('[data-name="ic-maximize"]') || target.closest('[data-name="ic-minimize"]')) {
-            handleToggle();
-          }
-        }}
-      >
-        {isMaximized ? (
-          <ChatuiMainMaximize messages={messages} onSubmit={handleSubmit} scrollContainerRef={scrollContainerRef} isToggling={isToggling} onBackToMain={handleBackToMain} onClose={handleClose} />
-        ) : (
-          <ChatuiMainMinimize messages={messages} onSubmit={handleSubmit} scrollContainerRef={scrollContainerRef} isToggling={isToggling} onBackToMain={handleBackToMain} onClose={handleClose} />
-        )}
-      </div>
+      {isMaximized ? (
+        <ChatuiMainMaximize
+          messages={messages}
+          onSubmit={handleSubmit}
+          scrollContainerRef={scrollContainerRef}
+          isToggling={isToggling}
+          onBackToMain={handleBackToMain}
+          onClose={handleClose}
+          onToggle={handleToggle}
+        />
+      ) : (
+        <ChatuiMainMinimize
+          messages={messages}
+          onSubmit={handleSubmit}
+          scrollContainerRef={scrollContainerRef}
+          isToggling={isToggling}
+          onBackToMain={handleBackToMain}
+          onClose={handleClose}
+          onToggle={handleToggle}
+        />
+      )}
     </div>
   );
 }
