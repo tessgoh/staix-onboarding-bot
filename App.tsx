@@ -16,44 +16,44 @@ function processAnswerWithLinks(text: string): string {
     ''
   );
   
-  // Pattern 0: [키워드] followed by URL - 키워드에만 링크 걸기
+  // Pattern 0: [키워드] followed by URL - 마크다운 링크 문법으로 변환
   // Matches: 자세한 절차는 여기에서 확인하세요: [키워드] https://example.com
   processedText = processedText.replace(
     /\[([^\]]+)\]\s+(https?:\/\/[^\s]+)/g,
-    '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">[$1]</a>'
+    '[$1]($2)'
   );
   
-  // Pattern 1: "텍스트" followed by URL on the same line
+  // Pattern 1: "텍스트" followed by URL on the same line - 마크다운 링크 문법으로 변환
   // Matches: "텍스트" https://example.com
   processedText = processedText.replace(
     /"([^"]+)"\s+(https?:\/\/[^\s]+)/g,
-    '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">$1</a>'
+    '[$1]($2)'
   );
   
-  // Pattern 2: "텍스트" followed by URL on the next line
+  // Pattern 2: "텍스트" followed by URL on the next line - 마크다운 링크 문법으로 변환
   // Matches: "텍스트"\nhttps://example.com
   processedText = processedText.replace(
     /"([^"]+)"\s*\n\s*(https?:\/\/[^\s]+)/g,
-    '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">$1</a>'
+    '[$1]($2)'
   );
   
-  // Pattern 3: 텍스트 followed by URL (without quotes)
+  // Pattern 3: 텍스트 followed by URL (without quotes) - 마크다운 링크 문법으로 변환
   // Matches: 자세한 내용은 https://example.com 참고하세요
   processedText = processedText.replace(
     /([가-힣\s]+)\s+(https?:\/\/[^\s]+)/g,
     (match, text, url) => {
       // Only convert if the text is meaningful (not just spaces)
       if (text.trim().length > 2) {
-        return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">${text.trim()}</a>`;
+        return `[${text.trim()}](${url})`;
       }
       return match;
     }
   );
   
-  // Convert remaining standalone URLs to links (but not already linked ones)
+  // Convert remaining standalone URLs to markdown links
   processedText = processedText.replace(
-    /(?<!href=")(https?:\/\/[^\s<>"]+)(?![^<]*<\/a>)/g,
-    '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">$1</a>'
+    /(https?:\/\/[^\s<>"]+)/g,
+    '[$1]($1)'
   );
   
   return processedText;
