@@ -16,31 +16,31 @@ function processAnswerWithLinks(text: string): string {
     ''
   );
   
-  // Pattern 0: [키워드] followed by URL
+  // Pattern 0: [키워드] followed by URL (but not already linked)
   // Matches: 자세한 절차는 여기에서 확인하세요: [키워드] https://example.com
   processedText = processedText.replace(
-    /\[([^\]]+)\]\s+(https?:\/\/[^\s]+)/g,
+    /(?<!<a[^>]*>)\[([^\]]+)\]\s+(https?:\/\/[^\s]+)(?![^<]*<\/a>)/g,
     '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">[$1]</a>'
   );
   
-  // Pattern 1: "텍스트" followed by URL on the same line
+  // Pattern 1: "텍스트" followed by URL on the same line (but not already linked)
   // Matches: "텍스트" https://example.com
   processedText = processedText.replace(
-    /"([^"]+)"\s+(https?:\/\/[^\s]+)/g,
+    /(?<!<a[^>]*>)"([^"]+)"\s+(https?:\/\/[^\s]+)(?![^<]*<\/a>)/g,
     '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">$1</a>'
   );
   
-  // Pattern 2: "텍스트" followed by URL on the next line
+  // Pattern 2: "텍스트" followed by URL on the next line (but not already linked)
   // Matches: "텍스트"\nhttps://example.com
   processedText = processedText.replace(
-    /"([^"]+)"\s*\n\s*(https?:\/\/[^\s]+)/g,
+    /(?<!<a[^>]*>)"([^"]+)"\s*\n\s*(https?:\/\/[^\s]+)(?![^<]*<\/a>)/g,
     '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">$1</a>'
   );
   
-  // Pattern 3: 텍스트 followed by URL (without quotes)
+  // Pattern 3: 텍스트 followed by URL (without quotes, but not already linked)
   // Matches: 자세한 내용은 https://example.com 참고하세요
   processedText = processedText.replace(
-    /([가-힣\s]+)\s+(https?:\/\/[^\s]+)/g,
+    /(?<!<a[^>]*>)([가-힣\s]+)\s+(https?:\/\/[^\s]+)(?![^<]*<\/a>)/g,
     (match, text, url) => {
       // Only convert if the text is meaningful (not just spaces)
       if (text.trim().length > 2) {
