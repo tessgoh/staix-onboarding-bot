@@ -102,7 +102,6 @@ export default function App() {
         throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
 
-<<<<<<< HEAD
       // Handle streaming response
       const responseText = await response.text();
       console.log('Webhook response text:', responseText);

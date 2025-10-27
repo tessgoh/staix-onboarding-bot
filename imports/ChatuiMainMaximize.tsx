@@ -213,7 +213,7 @@ function AnswerBubble({ answer, isLoading }: { answer: string; isLoading?: boole
         <ReactMarkdown 
           remarkPlugins={[remarkGfm]}
           components={{
-            a: ({ node, ...props }) => (
+            a: ({ node, ...props }: any) => (
               <a 
                 {...props} 
                 target="_blank" 
@@ -221,16 +221,16 @@ function AnswerBubble({ answer, isLoading }: { answer: string; isLoading?: boole
                 className="text-[#0070FF] underline"
               />
             ),
-            ul: ({ node, ...props }) => (
+            ul: ({ node, ...props }: any) => (
               <ul style={{ paddingLeft: '1rem', listStyleType: 'disc' }} {...props} />
             ),
-            ol: ({ node, ...props }) => (
+            ol: ({ node, ...props }: any) => (
               <ol style={{ paddingLeft: '1rem', listStyleType: 'decimal' }} {...props} />
             ),
-            li: ({ node, ...props }) => (
+            li: ({ node, ...props }: any) => (
               <li style={{ margin: '0.25rem 0' }} {...props} />
             ),
-            img: ({ node, ...props }) => (
+            img: ({ node, ...props }: any) => (
               <img 
                 {...props} 
                 className="h-[200px] shrink-0 w-full object-cover rounded-[6px] mt-[12px]"
