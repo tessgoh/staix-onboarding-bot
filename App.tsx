@@ -50,9 +50,9 @@ function processAnswerWithLinks(text: string): string {
     }
   );
   
-  // Convert remaining standalone URLs to markdown links
+  // Convert remaining standalone URLs to markdown links (but not already linked ones)
   processedText = processedText.replace(
-    /(https?:\/\/[^\s<>"]+)/g,
+    /(?<!\]\()(https?:\/\/[^\s<>"\)]+)(?!\))/g,
     '[$1]($1)'
   );
   
