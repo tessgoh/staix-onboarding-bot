@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import ChatuiMainMinimize from './imports/ChatuiMainMinimize';
-import ChatuiMainMaximize from './imports/ChatuiMainMaximize';
+import ChatuiMain from './src/ChatuiMain';
 
 interface Message {
   question: string;
@@ -81,7 +80,7 @@ function processAnswer(text: string): string {
   return processedText;
 }
 
-export default function App() {
+export default function App() { 
   const [isMaximized, setIsMaximized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [savedScrollTop, setSavedScrollTop] = useState<number | null>(null);
@@ -183,7 +182,6 @@ export default function App() {
 
       // 스트림이 끝나면 최종 업데이트
       console.log('Stream completed. Final text:', accumulatedText);
-
     } catch (error) {
       console.error('Webhook error:', error);
       
@@ -289,61 +287,19 @@ export default function App() {
         setIsToggling(false);
       });
     }
-  }, [isMaximized, isToggling, savedScrollTop]);
-
-  // 실제 화면 크기 전달을 위한 useEffect
-  useEffect(() => {
-    const sendActualHeightToParent = () => {
-      if (window.parent !== window) {
-        // 실제 DOM 요소의 크기 측정
-        const chatContainer = document.querySelector('[data-name="chatui-main-minimize"], [data-name="chatui-main-maximize"]');
-        if (chatContainer) {
-          const actualHeight = chatContainer.getBoundingClientRect().height;
-          console.log('실제 높이 전달:', actualHeight);
-          
-          window.parent.postMessage({
-            type: 'chat-height-change',
-            height: actualHeight
-          }, '*');
-        }
-      }
-    };
-
-    // 초기 전달
-    setTimeout(sendActualHeightToParent, 100);
-
-    // ResizeObserver로 크기 변화 감지
-    const resizeObserver = new ResizeObserver(sendActualHeightToParent);
-    resizeObserver.observe(document.body);
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, [isMaximized, messages]);
+  }, [isToggling, savedScrollTop]);
 
   return (
     <div className="size-full flex items-center justify-center">
-      {isMaximized ? (
-        <ChatuiMainMaximize
-          messages={messages}
-          onSubmit={handleSubmit}
-          scrollContainerRef={scrollContainerRef}
-          isToggling={isToggling}
-          onBackToMain={handleBackToMain}
-          onClose={handleClose}
-          onToggle={handleToggle}
-        />
-      ) : (
-        <ChatuiMainMinimize
-          messages={messages}
-          onSubmit={handleSubmit}
-          scrollContainerRef={scrollContainerRef}
-          isToggling={isToggling}
-          onBackToMain={handleBackToMain}
-          onClose={handleClose}
-          onToggle={handleToggle}
-        />
-      )}
+      <ChatuiMain
+        messages={messages}
+        onSubmit={handleSubmit}
+        scrollContainerRef={scrollContainerRef}
+        isToggling={isToggling}
+        onBackToMain={handleBackToMain}
+        onClose={handleClose}
+        onToggle={handleToggle}
+      />
     </div>
   );
 }

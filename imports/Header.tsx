@@ -182,7 +182,7 @@ export default function Header({ onBackClick, showBackButton, isMaximized, onClo
       <div className="flex flex-row items-center size-full">
         <div className="box-border content-stretch flex items-center justify-between px-[40px] py-[18px] relative size-full">
           <Frame377103 onBackClick={onBackClick} showBackButton={showBackButton} />
-          <Frame377022 isMaximized={isMaximized} onClose={onClose} onToggle={onToggle} />
+          {/* <Frame377022 isMaximized={isMaximized} onClose={onClose} onToggle={onToggle} /> */}
         </div>
       </div>
     </div>

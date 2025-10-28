@@ -1,21 +1,15 @@
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import svgPaths from "./svg-npkfhtmpf5";
+import svgPaths from "../imports/svg-npkfhtmpf5";
 import BubbleLoader from "../components/BubbleLoader";
-import Header from "./Header";
+import Header from "../imports/Header";
 
 interface Message {
   question: string;
   answer: string;
   isLoading?: boolean;
 }
-
-
-
-
-
-
 
 function IcShare() {
   return (
@@ -134,12 +128,11 @@ function Head() {
   );
 }
 
-function Faq03({ onClick }: { onClick: () => void }) {
+function FAQItem({ question, onFaqClick }: { question: string; onFaqClick: (question: string) => void }) {
   return (
     <div
-      onClick={onClick}
+      onClick={() => onFaqClick(question)}
       className="relative rounded-[30px] shrink-0 hover:bg-[#e7faec] transition-colors cursor-pointer"
-      data-name="FAQ03"
     >
       <div className="box-border content-stretch flex gap-[116px] items-center overflow-clip px-[20px] py-[12px] relative rounded-[inherit]">
         <div
@@ -161,85 +154,7 @@ function Faq03({ onClick }: { onClick: () => void }) {
                 "var(--paragraph-100-letter-spacing)",
             }}
           >
-            멤버 초대는 어떻게 해?
-          </p>
-        </div>
-      </div>
-      <div
-        aria-hidden="true"
-        className="absolute border-[#00ab7f] border-[1.2px] border-solid inset-0 pointer-events-none rounded-[30px]"
-      />
-    </div>
-  );
-}
-
-function Faq01({ onClick }: { onClick: () => void }) {
-  return (
-    <div
-      onClick={onClick}
-      className="relative rounded-[30px] shrink-0 hover:bg-[#e7faec] transition-colors cursor-pointer"
-      data-name="FAQ01"
-    >
-      <div className="box-border content-stretch flex gap-[116px] items-center overflow-clip px-[20px] py-[12px] relative rounded-[inherit]">
-        <div
-          className="flex flex-col font-['Pretendard_Variable',_sans-serif] justify-center leading-[0] relative shrink-0 text-[#00ab7f] text-nowrap"
-          style={{
-            fontSize: "var(--paragraph-100-size)",
-            fontWeight: "var(--paragraph-100-regular)",
-            letterSpacing:
-              "var(--paragraph-100-letter-spacing)",
-          }}
-        >
-          <p
-            className="whitespace-pre"
-            style={{
-              fontSize: "var(--paragraph-100-size)",
-              fontWeight: "var(--paragraph-100-regular)",
-              lineHeight: "var(--paragraph-100-line-height)",
-              letterSpacing:
-                "var(--paragraph-100-letter-spacing)",
-            }}
-          >
-            AI 게이트웨이 역할에 대해 알려줘
-          </p>
-        </div>
-      </div>
-      <div
-        aria-hidden="true"
-        className="absolute border-[#00ab7f] border-[1.2px] border-solid inset-0 pointer-events-none rounded-[30px]"
-      />
-    </div>
-  );
-}
-
-function Faq04Hover({ onClick }: { onClick: () => void }) {
-  return (
-    <div
-      onClick={onClick}
-      className="relative rounded-[30px] shrink-0 hover:bg-[#e7faec] transition-colors cursor-pointer"
-      data-name="FAQ04 (hover)"
-    >
-      <div className="box-border content-stretch flex gap-[116px] items-center overflow-clip px-[20px] py-[12px] relative rounded-[inherit]">
-        <div
-          className="flex flex-col font-['Pretendard_Variable',_sans-serif] justify-center leading-[0] relative shrink-0 text-[#00ab7f] text-nowrap"
-          style={{
-            fontSize: "var(--paragraph-100-size)",
-            fontWeight: "var(--paragraph-100-regular)",
-            letterSpacing:
-              "var(--paragraph-100-letter-spacing)",
-          }}
-        >
-          <p
-            className="whitespace-pre"
-            style={{
-              fontSize: "var(--paragraph-100-size)",
-              fontWeight: "var(--paragraph-100-regular)",
-              lineHeight: "var(--paragraph-100-line-height)",
-              letterSpacing:
-                "var(--paragraph-100-letter-spacing)",
-            }}
-          >
-            결제 수단 등록에 대해 알려줘
+            {question}
           </p>
         </div>
       </div>
@@ -261,19 +176,11 @@ function Faq({
       className="content-stretch flex flex-col gap-[12px] items-center justify-center relative shrink-0"
       data-name="FAQ"
     >
-      <Faq03
-        onClick={() => onFaqClick("멤버 초대는 어떻게 해?")}
-      />
-      <Faq01
-        onClick={() =>
-          onFaqClick("AI 게이트웨이 역할에 대해 알려줘")
-        }
-      />
-      <Faq04Hover
-        onClick={() =>
-          onFaqClick("결제 수단 등록에 대해 알려줘")
-        }
-      />
+      {Array.from([
+        "멤버 초대는 어떻게 해?", "AI 게이트웨이 역할에 대해 알려줘", "결제 수단 등록에 대해 알려줘"
+      ]).map((question) => (
+        <FAQItem key={question} question={question} onFaqClick={onFaqClick} />
+      ))}
     </div>
   );
 }
@@ -361,7 +268,7 @@ function AnswerBubble({
             ),
           }}
         >
-          {answer.replace(/\\n/g, '\n')}
+          {answer}
         </ReactMarkdown>
       </div>
     </div>
@@ -585,11 +492,6 @@ function Input({
   );
 }
 
-
-
-
-
-
 function Search({
   onSubmit,
 }: {
@@ -629,7 +531,7 @@ function Search({
   );
 }
 
-interface ChatuiMainMinimizeProps {
+interface ChatuiMainProps {
   messages: Message[];
   onSubmit: (question: string) => void;
   scrollContainerRef?: React.RefObject<HTMLDivElement>;
@@ -639,7 +541,7 @@ interface ChatuiMainMinimizeProps {
   onToggle?: () => void;
 }
 
-export default function ChatuiMainMinimize({
+export default function ChatuiMain({
   messages,
   onSubmit,
   scrollContainerRef,
@@ -647,11 +549,10 @@ export default function ChatuiMainMinimize({
   onBackToMain,
   onClose,
   onToggle,
-}: ChatuiMainMinimizeProps) {
+}: ChatuiMainProps) {
   return (
     <div
-      className="bg-white box-border content-stretch flex flex-col items-center overflow-clip relative rounded-[6px] w-[400px] min-h-[668px] max-h-[760px]"
-      data-name="chatui-main-minimize"
+      className="bg-white box-border content-stretch flex flex-col items-center overflow-clip relative rounded-[6px] w-full h-full"
     >
       <Header
         onBackClick={onBackToMain}
