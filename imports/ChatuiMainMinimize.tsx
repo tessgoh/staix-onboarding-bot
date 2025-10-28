@@ -355,7 +355,7 @@ function AnswerBubble({
             img: ({ node, ...props }: any) => (
               <img 
                 {...props} 
-                className="h-[137px] shrink-0 w-full object-cover rounded-[6px] mt-[12px]"
+                className="shrink-0 w-full object-contain rounded-[6px] mt-[12px]"
                 alt={props.alt || ''}
               />
             ),

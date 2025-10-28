@@ -16,6 +16,14 @@ function processAnswerWithLinks(text: string): string {
     ''
   );
   
+  // 이미지 URL 패턴 감지 (jpg, jpeg, png, gif, webp, svg 등)
+  const imageUrlPattern = /(https?:\/\/[^\s<>"\)]+\.(?:jpg|jpeg|png|gif|webp|svg|bmp|ico)(?:\?[^\s<>"\)]*)?)/gi;
+  
+  // 이미지 URL을 마크다운 이미지 문법으로 변환
+  processedText = processedText.replace(imageUrlPattern, (match) => {
+    return `![이미지](${match})`;
+  });
+  
   // Pattern 0: [키워드] followed by URL - 마크다운 링크 문법으로 변환
   // Matches: 자세한 절차는 여기에서 확인하세요: [키워드] https://example.com
   processedText = processedText.replace(
@@ -50,10 +58,16 @@ function processAnswerWithLinks(text: string): string {
     }
   );
   
-  // Convert remaining standalone URLs to markdown links (but not already linked ones)
+  // Convert remaining standalone URLs to markdown links (but not already linked ones or images)
   processedText = processedText.replace(
     /(?<!\]\()(https?:\/\/[^\s<>"\)]+)(?!\))/g,
-    '[$1]($1)'
+    (match) => {
+      // 이미지 URL이 아닌 경우에만 링크로 변환
+      if (!imageUrlPattern.test(match)) {
+        return `[${match}](${match})`;
+      }
+      return match;
+    }
   );
   
   return processedText;
