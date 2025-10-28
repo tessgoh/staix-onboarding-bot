@@ -9,7 +9,7 @@ interface Message {
 }
 
 // Function to process answer and convert text + URL patterns to clickable links
-function processAnswerWithLinks(text: string): string {
+function processAnswer(text: string): string {
   // First, clean up any existing malformed HTML that might be showing as text
   let processedText = text.replace(
     /" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">/g,
@@ -69,6 +69,14 @@ function processAnswerWithLinks(text: string): string {
       return match;
     }
   );
+
+  // Remove backtick to prevent code block
+  processedText = processedText.replace(
+    /`/g,
+    () => {
+      return '';
+    }
+  );
   
   return processedText;
 }
@@ -116,76 +124,66 @@ export default function App() {
         throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
 
-      // Handle streaming response
-      const responseText = await response.text();
-      console.log('Webhook response text:', responseText);
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
       
-      let answer = '';
-      
-      try {
-        // Try to parse as regular JSON first
-        const data = JSON.parse(responseText);
-        console.log('Parsed as JSON:', data);
+      if (!reader) {
+        throw new Error('응답 스트림을 읽을 수 없습니다.');
+      }
+
+      let accumulatedText = '';
+      let buffer = '';
+
+      // Stream 읽기
+      while (true) {
+        const { done, value } = await reader.read();
         
-        if (typeof data === 'string') {
-          answer = data;
-        } else if (data && typeof data === 'object') {
-          answer = data.output || 
-                   data.answer || 
-                   data.message || 
-                   data.response || 
-                   data.text || 
-                   data.content || 
-                   data.data ||
-                   data.result ||
-                   data.body ||
-                   data.payload;
+        if (done) {
+          break;
         }
-      } catch (jsonError) {
-        console.log('Not a single JSON, trying streaming format...');
         
-        // Handle streaming format - split by lines and extract content
-        const lines = responseText.trim().split('\n');
-        const contentItems: string[] = [];
+        // 디코딩된 청크를 버퍼에 추가
+        const chunk = decoder.decode(value, { stream: true });
+        buffer += chunk;
         
+        // 줄바꿈으로 분리
+        const lines = buffer.split('\n');
+        
+        // 마지막 줄은 불완전할 수 있으므로 버퍼에 유지
+        buffer = lines.pop() || '';
+        
+        // 각 줄을 JSON으로 파싱
         for (const line of lines) {
+          if (!line.trim()) continue;
+          
           try {
-            const item = JSON.parse(line);
-            if (item.type === 'item' && item.content) {
-              contentItems.push(item.content);
+            const data = JSON.parse(line);
+            
+            // type이 "item"인 경우에만 content 추출
+            if (data.type === 'item' && data.content) {
+              accumulatedText += data.content;
+              
+              // 실시간으로 메시지 업데이트
+              setMessages(prevMessages => {
+                const updatedMessages = [...prevMessages];
+                const lastIndex = updatedMessages.length - 1;
+                updatedMessages[lastIndex] = {
+                  question,
+                  answer: processAnswer(accumulatedText),
+                  isLoading: false
+                };
+                return updatedMessages;
+              });
             }
-          } catch (lineError) {
-            // Skip invalid JSON lines
-            console.log('Skipping invalid line:', line);
+          } catch (e) {
+            console.warn('JSON 파싱 에러:', line, e);
           }
         }
-        
-        if (contentItems.length > 0) {
-          answer = contentItems.join('');
-        }
       }
-      
-      // Fallback if no answer found
-      if (!answer || answer === '') {
-        answer = '응답을 받았지만 내용을 파싱할 수 없습니다.';
-      }
-      
-      // Process answer to convert text + URL patterns to clickable links
-      answer = processAnswerWithLinks(answer);
-      
-      console.log('Final answer:', answer);
-      
-      // Update message with response
-      setMessages(prevMessages => {
-        const updatedMessages = [...prevMessages];
-        const lastIndex = updatedMessages.length - 1;
-        updatedMessages[lastIndex] = {
-          question,
-          answer: answer,
-          isLoading: false
-        };
-        return updatedMessages;
-      });
+
+      // 스트림이 끝나면 최종 업데이트
+      console.log('Stream completed. Final text:', accumulatedText);
+
     } catch (error) {
       console.error('Webhook error:', error);
       
