@@ -80,12 +80,25 @@ function processAnswer(text: string): string {
   return processedText;
 }
 
+// Generate unique session ID
+function generateSessionId(): string {
+  return `${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+}
+
 export default function App() { 
   const [isMaximized, setIsMaximized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [savedScrollTop, setSavedScrollTop] = useState<number | null>(null);
   const [isToggling, setIsToggling] = useState(false);
+  const [sessionId, setSessionId] = useState<string>('');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Initialize sessionId when component mounts
+  useEffect(() => {
+    const newSessionId = generateSessionId();
+    setSessionId(newSessionId);
+    console.log('New session started with ID:', newSessionId);
+  }, []);
 
   const handleSubmit = async (question: string) => {
     // Add message with loading state
@@ -109,6 +122,7 @@ export default function App() {
         },
         body: JSON.stringify({
           question: question,
+          sessionId: sessionId,
           timestamp: new Date().toISOString(),
           user: 'user' // You can modify this as needed
         })
@@ -254,6 +268,11 @@ export default function App() {
 
   const handleBackToMain = () => {
     setMessages([]);
+    
+    // Generate new sessionId when resetting conversation
+    const newSessionId = generateSessionId();
+    setSessionId(newSessionId);
+    console.log('Conversation reset. New session ID:', newSessionId);
     
     // iframe에서 부모 창으로 메시지 초기화 알림
     if (window.parent !== window) {
