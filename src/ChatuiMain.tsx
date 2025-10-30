@@ -516,8 +516,6 @@ interface ChatuiMainProps {
   scrollContainerRef?: React.RefObject<HTMLDivElement>;
   isToggling?: boolean;
   onBackToMain?: () => void;
-  onClose?: () => void;
-  onToggle?: () => void;
 }
 
 export default function ChatuiMain({
@@ -526,8 +524,6 @@ export default function ChatuiMain({
   scrollContainerRef,
   isToggling,
   onBackToMain,
-  onClose,
-  onToggle,
 }: ChatuiMainProps) {
   return (
     <div
@@ -536,9 +532,6 @@ export default function ChatuiMain({
       <Header
         onBackClick={onBackToMain}
         showBackButton={messages.length > 0}
-        isMaximized={false}
-        onClose={onClose}
-        onToggle={onToggle}
       />
       {messages.length === 0 ? (
         <InitialView onFaqClick={onSubmit} />
