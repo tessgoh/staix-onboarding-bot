@@ -7,79 +7,6 @@ interface Message {
   isLoading?: boolean;
 }
 
-// Function to process answer and convert text + URL patterns to clickable links
-function processAnswer(text: string): string {
-  // First, clean up any existing malformed HTML that might be showing as text
-  let processedText = text.replace(
-    /" target="_blank" rel="noopener noreferrer" style="color: #0070FF; text-decoration: underline;">/g,
-    ''
-  );
-  
-  // 이미지 URL 패턴 감지 (jpg, jpeg, png, gif, webp, svg 등)
-  const imageUrlPattern = /(https?:\/\/[^\s<>"\)]+\.(?:jpg|jpeg|png|gif|webp|svg|bmp|ico)(?:\?[^\s<>"\)]*)?)/gi;
-  
-  // 이미지 URL을 마크다운 이미지 문법으로 변환
-  processedText = processedText.replace(imageUrlPattern, (match) => {
-    return `![이미지](${match})`;
-  });
-  
-  // Pattern 0: [키워드] followed by URL - 마크다운 링크 문법으로 변환
-  // Matches: 자세한 절차는 여기에서 확인하세요: [키워드] https://example.com
-  processedText = processedText.replace(
-    /\[([^\]]+)\]\s+(https?:\/\/[^\s]+)/g,
-    '[$1]($2)'
-  );
-  
-  // Pattern 1: "텍스트" followed by URL on the same line - 마크다운 링크 문법으로 변환
-  // Matches: "텍스트" https://example.com
-  processedText = processedText.replace(
-    /"([^"]+)"\s+(https?:\/\/[^\s]+)/g,
-    '[$1]($2)'
-  );
-  
-  // Pattern 2: "텍스트" followed by URL on the next line - 마크다운 링크 문법으로 변환
-  // Matches: "텍스트"\nhttps://example.com
-  processedText = processedText.replace(
-    /"([^"]+)"\s*\n\s*(https?:\/\/[^\s]+)/g,
-    '[$1]($2)'
-  );
-  
-  // Pattern 3: 텍스트 followed by URL (without quotes) - 마크다운 링크 문법으로 변환
-  // Matches: 자세한 내용은 https://example.com 참고하세요
-  processedText = processedText.replace(
-    /([가-힣\s]+)\s+(https?:\/\/[^\s]+)/g,
-    (match, text, url) => {
-      // Only convert if the text is meaningful (not just spaces)
-      if (text.trim().length > 2) {
-        return `[${text.trim()}](${url})`;
-      }
-      return match;
-    }
-  );
-  
-  // Convert remaining standalone URLs to markdown links (but not already linked ones or images)
-  processedText = processedText.replace(
-    /(?<!\]\()(https?:\/\/[^\s<>"\)]+)(?!\))/g,
-    (match) => {
-      // 이미지 URL이 아닌 경우에만 링크로 변환
-      if (!imageUrlPattern.test(match)) {
-        return `[${match}](${match})`;
-      }
-      return match;
-    }
-  );
-
-  // Remove backtick to prevent code block
-  processedText = processedText.replace(
-    /`/g,
-    () => {
-      return '';
-    }
-  );
-  
-  return processedText;
-}
-
 // Generate unique session ID
 function generateSessionId(): string {
   return `${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -184,7 +111,7 @@ export default function App() {
                   const lastIndex = updatedMessages.length - 1;
                   updatedMessages[lastIndex] = {
                     question,
-                    answer: processAnswer(accumulatedText),
+                    answer: accumulatedText.replace(/`/g, () => { return '' }),
                     isLoading: false
                   };
                   return updatedMessages;

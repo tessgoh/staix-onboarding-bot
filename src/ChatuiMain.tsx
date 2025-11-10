@@ -281,7 +281,7 @@ function ChatView({
   isToggling,
 }: {
   messages: Message[];
-  scrollContainerRef?: React.RefObject<HTMLDivElement>;
+  scrollContainerRef?: React.Ref<HTMLDivElement>;
   isToggling?: boolean;
 }) {
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -534,7 +534,7 @@ function Search({
 interface ChatuiMainProps {
   messages: Message[];
   onSubmit: (question: string) => void;
-  scrollContainerRef?: React.RefObject<HTMLDivElement>;
+  scrollContainerRef?: React.Ref<HTMLDivElement>;
   isToggling?: boolean;
   onBackToMain?: () => void;
   onClose?: () => void;
