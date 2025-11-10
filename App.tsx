@@ -13,10 +13,8 @@ function generateSessionId(): string {
 }
 
 export default function App() { 
-  const [isMaximized, setIsMaximized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [savedScrollTop, setSavedScrollTop] = useState<number | null>(null);
-  const [isToggling, setIsToggling] = useState(false);
+  // toggling and saved scroll removed with header controls
   const [sessionId, setSessionId] = useState<string>('');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -172,30 +170,6 @@ export default function App() {
     })();
   };
 
-  const handleToggle = () => {
-    // Save current scroll position before toggling
-    if (scrollContainerRef.current) {
-      setSavedScrollTop(scrollContainerRef.current.scrollTop);
-    }
-    setIsToggling(true);
-    const newMaximizedState = !isMaximized;
-    setIsMaximized(newMaximizedState);
-    
-    // 디버깅을 위한 로그
-    console.log('handleToggle called, isMaximized:', isMaximized, 'newMaximizedState:', newMaximizedState);
-    console.log('window.parent !== window:', window.parent !== window);
-    
-    // iframe에서 부모 창으로 상태 전달
-    if (window.parent !== window) {
-      const message = {
-        type: 'chat-toggle',
-        isMaximized: newMaximizedState
-      };
-      console.log('Sending message to parent:', message);
-      window.parent.postMessage(message, '*');
-    }
-  };
-
   const handleBackToMain = () => {
     setMessages([]);
     
@@ -212,31 +186,7 @@ export default function App() {
     }
   };
 
-  const handleClose = () => {
-    // iframe에서 부모 창으로 닫기 요청
-    if (window.parent !== window) {
-      window.parent.postMessage({
-        type: 'chat-close'
-      }, '*');
-    } else {
-      // iframe이 아닌 경우 기존 동작
-      if (window.confirm('정말로 창을 닫으시겠습니까?')) {
-        window.close();
-      }
-    }
-  };
-
-  useEffect(() => {
-    // Restore scroll position after component switches
-    if (isToggling && scrollContainerRef.current && savedScrollTop !== null) {
-      requestAnimationFrame(() => {
-        if (scrollContainerRef.current) {
-          scrollContainerRef.current.scrollTop = savedScrollTop;
-        }
-        setIsToggling(false);
-      });
-    }
-  }, [isToggling, savedScrollTop]);
+  // removed toggling-related scroll restoration
 
   return (
     <div className="size-full flex items-center justify-center">
@@ -244,10 +194,7 @@ export default function App() {
         messages={messages}
         onSubmit={handleSubmit}
         scrollContainerRef={scrollContainerRef}
-        isToggling={isToggling}
         onBackToMain={handleBackToMain}
-        onClose={handleClose}
-        onToggle={handleToggle}
       />
     </div>
   );

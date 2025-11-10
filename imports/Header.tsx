@@ -1,5 +1,5 @@
 import svgPaths from "./svg-hanw92ky9i";
-import minimizeSvgPaths from "./svg-ic4zwh3etf";
+// maximize/minimize/close controls removed
 
 function IcChevronLeft() {
   return (
@@ -88,101 +88,19 @@ function Frame377103({ onBackClick, showBackButton }: { onBackClick?: () => void
   );
 }
 
-function IcMaximize() {
-  return (
-    <div className="relative shrink-0 size-[24px]" data-name="ic-maximize">
-      <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 24 24">
-        <g id="ic-maximize">
-          <path d={svgPaths.p3d849100} id="Icon" stroke="var(--stroke-0, black)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" />
-        </g>
-      </svg>
-    </div>
-  );
-}
-
-function IcMinimize() {
-  return (
-    <div className="relative shrink-0 size-[24px]" data-name="ic-minimize">
-      <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 24 24">
-        <g id="ic-minimize">
-          <path d={minimizeSvgPaths.p10022480} id="Icon" stroke="var(--stroke-0, black)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" />
-        </g>
-      </svg>
-    </div>
-  );
-}
-
-function IcSize1({ isMaximized, onClick }: { isMaximized?: boolean; onClick?: () => void }) {
-  return (
-    <div 
-      className="content-stretch flex flex-col gap-[8px] items-start justify-center relative shrink-0 cursor-pointer hover:opacity-70 transition-opacity" 
-      data-name="ic_size"
-      onClick={onClick}
-    >
-      {isMaximized ? <IcMinimize /> : <IcMaximize />}
-    </div>
-  );
-}
-
-function IcClose() {
-  return (
-    <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 24 24">
-      <g id="ic-close">
-        <g id="icon">
-          <path clipRule="evenodd" d={svgPaths.pc3e4b00} fill="var(--fill-0, #111111)" fillRule="evenodd" />
-          <path clipRule="evenodd" d={svgPaths.pc3e4b00} fill="var(--fill-1, black)" fillOpacity="0.2" fillRule="evenodd" />
-          <path clipRule="evenodd" d={svgPaths.pc3e4b00} fill="var(--fill-2, black)" fillOpacity="0.2" fillRule="evenodd" />
-          <path clipRule="evenodd" d={svgPaths.pc3e4b00} fill="var(--fill-3, black)" fillOpacity="0.2" fillRule="evenodd" />
-        </g>
-      </g>
-    </svg>
-  );
-}
-
-function IcClose1() {
-  return (
-    <div className="relative shrink-0 size-[24px]" data-name="ic-close">
-      <IcClose />
-    </div>
-  );
-}
-
-function IcSize2({ onClick }: { onClick?: () => void }) {
-  return (
-    <div 
-      className="content-stretch flex flex-col gap-[8px] items-start justify-center relative shrink-0 cursor-pointer hover:opacity-70 transition-opacity" 
-      data-name="ic_size"
-      onClick={onClick}
-    >
-      <IcClose1 />
-    </div>
-  );
-}
-
-function Frame377022({ isMaximized, onClose, onToggle }: { isMaximized?: boolean; onClose?: () => void; onToggle?: () => void }) {
-  return (
-    <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
-      <IcSize1 isMaximized={isMaximized} onClick={onToggle} />
-      <IcSize2 onClick={onClose} />
-    </div>
-  );
-}
+// controls fully removed
 
 interface HeaderProps {
   onBackClick?: () => void;
   showBackButton?: boolean;
-  isMaximized?: boolean;
-  onClose?: () => void;
-  onToggle?: () => void;
 }
 
-export default function Header({ onBackClick, showBackButton, isMaximized, onClose, onToggle }: HeaderProps) {
+export default function Header({ onBackClick, showBackButton }: HeaderProps) {
   return (
     <div className="relative rounded-[6px] w-full h-[60px]" data-name="header">
       <div className="flex flex-row items-center size-full">
         <div className="box-border content-stretch flex items-center justify-between px-[40px] py-[18px] relative size-full">
           <Frame377103 onBackClick={onBackClick} showBackButton={showBackButton} />
-          {/* <Frame377022 isMaximized={isMaximized} onClose={onClose} onToggle={onToggle} /> */}
         </div>
       </div>
     </div>
